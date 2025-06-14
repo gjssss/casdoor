@@ -364,7 +364,7 @@ func RefreshToken(grantType string, refreshToken string, scope string, clientId 
 		return nil, err
 	}
 	if user == nil {
-		return "", fmt.Errorf("The user: %s doesn't exist", util.GetId(application.Organization, token.User))
+		return "", fmt.Errorf("the user: %s doesn't exist", util.GetId(application.Organization, token.User))
 	}
 
 	if user.IsForbidden {
@@ -744,24 +744,24 @@ func GetWechatMiniProgramToken(application *Application, code string, host strin
 		if CheckUsername(username, lang) == "" {
 			name = username
 		} else {
-			name = fmt.Sprintf("wechat-%s", openId)
+			name = fmt.Sprintf("wechat-%s", unionId)
 		}
 
+		openIdKey := fmt.Sprintf("%s:openid", application.Name)
 		user = &User{
 			Owner:             application.Organization,
 			Id:                util.GenerateId(),
 			Name:              name,
 			Avatar:            avatar,
 			SignupApplication: application.Name,
-			WeChat:            openId,
+			WeChat:            unionId,
 			Type:              "normal-user",
 			CreatedTime:       util.GetCurrentTime(),
 			IsAdmin:           false,
 			IsForbidden:       false,
 			IsDeleted:         false,
 			Properties: map[string]string{
-				UserPropertiesWechatOpenId:  openId,
-				UserPropertiesWechatUnionId: unionId,
+				openIdKey: openId,
 			},
 		}
 		_, err = AddUser(user, "en")

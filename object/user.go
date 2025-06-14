@@ -33,11 +33,6 @@ import (
 	"github.com/xorm-io/core"
 )
 
-const (
-	UserPropertiesWechatUnionId = "wechatUnionId"
-	UserPropertiesWechatOpenId  = "wechatOpenId"
-)
-
 const UserEnforcerId = "built-in/user-enforcer-built-in"
 
 var userEnforcer *UserGroupEnforcer

@@ -476,9 +476,9 @@ func generateJwtToken(application *Application, user *User, provider string, non
 
 	if cert == nil {
 		if application.Cert == "" {
-			return "", "", "", fmt.Errorf("The cert field of the application \"%s\" should not be empty", application.GetId())
+			return "", "", "", fmt.Errorf("the cert field of the application \"%s\" should not be empty", application.GetId())
 		} else {
-			return "", "", "", fmt.Errorf("The cert \"%s\" does not exist", application.Cert)
+			return "", "", "", fmt.Errorf("the cert \"%s\" does not exist", application.Cert)
 		}
 	}
 
