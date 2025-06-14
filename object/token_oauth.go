@@ -732,6 +732,7 @@ func GetWechatMiniProgramToken(application *Application, code string, host strin
 		return nil, nil, err
 	}
 
+	openIdKey := fmt.Sprintf("%s:openid", application.Name)
 	if user == nil {
 		if !application.EnableSignUp {
 			return nil, &TokenError{
@@ -747,7 +748,6 @@ func GetWechatMiniProgramToken(application *Application, code string, host strin
 			name = fmt.Sprintf("wechat-%s", unionId)
 		}
 
-		openIdKey := fmt.Sprintf("%s:openid", application.Name)
 		user = &User{
 			Owner:             application.Organization,
 			Id:                util.GenerateId(),
@@ -767,6 +767,15 @@ func GetWechatMiniProgramToken(application *Application, code string, host strin
 		_, err = AddUser(user, "en")
 		if err != nil {
 			return nil, nil, err
+		}
+	} else {
+		if (user.Properties[openIdKey] == "" || user.Properties["openid"] != openId) && openId != "" {
+			// update openid
+			user.Properties[openIdKey] = openId
+			_, err = UpdateUser(user.GetId(), user, []string{"Properties"}, false)
+			if err != nil {
+				return nil, nil, err
+			}
 		}
 	}
 
