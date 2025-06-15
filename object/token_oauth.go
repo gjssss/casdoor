@@ -18,6 +18,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -732,7 +733,8 @@ func GetWechatMiniProgramToken(application *Application, code string, host strin
 		return nil, nil, err
 	}
 
-	openIdKey := fmt.Sprintf("%s:openid", application.Name)
+	appid := application.GetProviderItemByType("WeChatMiniProgram").Provider.ClientId
+	fieldKey := fmt.Sprintf("wechat_%s", appid)
 	if user == nil {
 		if !application.EnableSignUp {
 			return nil, &TokenError{
@@ -761,7 +763,7 @@ func GetWechatMiniProgramToken(application *Application, code string, host strin
 			IsForbidden:       false,
 			IsDeleted:         false,
 			Properties: map[string]string{
-				openIdKey: openId,
+				fieldKey: openId,
 			},
 		}
 		_, err = AddUser(user, "en")
@@ -769,12 +771,18 @@ func GetWechatMiniProgramToken(application *Application, code string, host strin
 			return nil, nil, err
 		}
 	} else {
-		if (user.Properties[openIdKey] == "" || user.Properties["openid"] != openId) && openId != "" {
+		if (user.Properties[fieldKey] == "" || user.Properties[fieldKey] != openId) && openId != "" {
 			// update openid
-			user.Properties[openIdKey] = openId
-			_, err = UpdateUser(user.GetId(), user, []string{"Properties"}, false)
+			user.Properties[fieldKey] = openId
+			_, err = UpdateUser(user.GetId(), user, []string{"properties"}, false)
 			if err != nil {
 				return nil, nil, err
+			}
+			// Hide other WeChatOpenID fields except current appid
+			for key := range user.Properties {
+				if strings.HasPrefix(key, "wechat_") && key != appid {
+					user.Properties[key] = "*"
+				}
 			}
 		}
 	}
